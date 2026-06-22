@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: powerbi-pdf-export
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: ALLOWED_ORIGIN
+        value: "https://mateusm23.github.io"
+    healthCheckPath: /health
