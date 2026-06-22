@@ -1,5 +1,6 @@
-import io
+import os
 import re
+import tempfile
 import time
 
 import img2pdf
@@ -38,9 +39,11 @@ def export_to_pdf(report_url: str) -> bytes:
                 "--js-flags=--max-old-space-size=256",
             ]
         )
+        image_paths: list[str] = []
+        tmpdir = tempfile.mkdtemp(prefix="pbi-export-")
         try:
             page = browser.new_page(
-                viewport={"width": 1280, "height": 720}, device_scale_factor=1.5
+                viewport={"width": 1280, "height": 720}, device_scale_factor=1.25
             )
             page.goto(report_url, wait_until="networkidle", timeout=60_000)
             page.wait_for_selector(
@@ -51,17 +54,21 @@ def export_to_pdf(report_url: str) -> bytes:
 
             _, total_pages = _read_page_counter(page)
 
-            images: list[bytes] = []
             next_btn = page.locator("button[aria-label='Next Page']")
             for i in range(1, total_pages + 1):
-                images.append(page.screenshot(full_page=False))
+                path = os.path.join(tmpdir, f"page-{i:02d}.jpeg")
+                page.screenshot(path=path, type="jpeg", quality=85, full_page=False)
+                image_paths.append(path)
                 if i < total_pages:
                     next_btn.click()
                     page.wait_for_timeout(NEXT_PAGE_SETTLE_MS)
 
-            return img2pdf.convert(images)
+            return img2pdf.convert(image_paths)
         finally:
             browser.close()
+            for path in image_paths:
+                os.remove(path)
+            os.rmdir(tmpdir)
 
 
 if __name__ == "__main__":
