@@ -59,7 +59,7 @@ async def export(obra: str):
         try:
             pdf_bytes = await asyncio.wait_for(
                 loop.run_in_executor(None, export_to_pdf, match["url"]),
-                timeout=300,
+                timeout=480,
             )
         except asyncio.TimeoutError:
             return JSONResponse(

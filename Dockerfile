@@ -12,4 +12,4 @@ COPY obras.json .
 ENV PORT=8000
 EXPOSE 8000
 
-CMD gunicorn -k uvicorn.workers.UvicornWorker -w 1 --timeout 300 --bind 0.0.0.0:${PORT} app.main:app
+CMD gunicorn -k uvicorn.workers.UvicornWorker -w 1 --timeout 500 --bind 0.0.0.0:${PORT} app.main:app
