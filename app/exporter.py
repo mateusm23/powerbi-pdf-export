@@ -21,11 +21,26 @@ def _read_page_counter(page) -> tuple[int, int]:
 def export_to_pdf(report_url: str) -> bytes:
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            args=["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu"]
+            args=[
+                "--disable-dev-shm-usage",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--disable-extensions",
+                "--disable-background-networking",
+                "--disable-default-apps",
+                "--disable-sync",
+                "--metrics-recording-only",
+                "--mute-audio",
+                "--no-first-run",
+                "--disable-backgrounding-occluded-windows",
+                "--disable-renderer-backgrounding",
+                "--disable-features=site-per-process",
+                "--js-flags=--max-old-space-size=256",
+            ]
         )
         try:
             page = browser.new_page(
-                viewport={"width": 1600, "height": 900}, device_scale_factor=2
+                viewport={"width": 1280, "height": 720}, device_scale_factor=1.5
             )
             page.goto(report_url, wait_until="networkidle", timeout=60_000)
             page.wait_for_selector(
